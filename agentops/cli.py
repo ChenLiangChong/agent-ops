@@ -50,6 +50,8 @@ def main(argv=None) -> int:
     sub.add_parser("memory", help="列組織記憶")
     sub.add_parser("flush", help="投遞 pending 通知")
     sub.add_parser("summary", help="遙測摘要")
+    sub.add_parser("export-review-rules",
+                   help="投影組織記憶 → memory/review-rules.md（給第二道 CI leader review 載入）")
     args = p.parse_args(argv)
 
     if args.cmd == "demo":
@@ -86,4 +88,8 @@ def main(argv=None) -> int:
         print(escalations.flush(database, MockSlackSender()))
     elif args.cmd == "summary":
         print(json.dumps(telemetry.summary(database), ensure_ascii=False, indent=2))
+    elif args.cmd == "export-review-rules":
+        out = os.path.join(_root(), "memory", "review-rules.md")
+        n = memory.export_review_rules(database, out)
+        print(f"✔ 投影 {n} 條組織記憶 → {out}")
     return 0
