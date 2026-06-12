@@ -29,7 +29,7 @@ jobs:
             PR: ${{ github.event.pull_request.number }}
             你是這個 repo 的 reviewer agent。照 charters/reviewer.md 的鐵律與
             specs/code-review.spec.json 的標準 review 這個 PR：
-            測試覆蓋、diff 大小、描述完整度、安全性（審批繞過、身分偽造）。
-            發現按 severity 分級，用行內留言標到具體位置，最後給一段總結。
-            用繁體中文（台灣用語）。
-          claude_args: '--allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob"'
+            測試覆蓋、diff 大小、描述完整度、安全性（審批繞過、身分偽造、SQL 組裝）。
+            發現按 severity 分級：行內意見用 mcp__github_inline_comment__create_inline_comment
+            標到具體行，總結用 `gh pr comment` 留一則。用繁體中文（台灣用語）。
+          claude_args: '--allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob,Write"'
