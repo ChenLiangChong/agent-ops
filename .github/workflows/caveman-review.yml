@@ -1,0 +1,38 @@
+# 第一道 review：caveman 冷血一行式，per-PR 即時守門。
+# skill 是 vendored 第三方（.claude/skills/caveman-review/，MIT，見其 NOTICE.md）。
+# 認證走訂閱 OAuth。分工：caveman 給「怎麼講」（精簡格式），我們 append 給「查什麼」（repo 專屬鐵律）。
+name: Caveman Review（per-PR 即時）
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            /caveman-review
+
+            REPO: ${{ github.repository }}
+            PR: ${{ github.event.pull_request.number }}
+            用 caveman-review 的冷血一行式 review 這個 PR 的 diff。除了一般 bug，特別查本 repo 鐵律：
+            - 測試覆蓋：specs/code-review.spec.json 要求 require_tests，改 code 沒附測試＝🔴
+            - SQL 字串拼接（注入風險）
+            - 安全機制繞過：審批 resume_params 掉包、verified-actor 身分偽造、escalation 非同 transaction
+            - diff 過大該拆
+            行內留言用 mcp__github_inline_comment__create_inline_comment 標到具體行，
+            最後 `gh pr comment` 留一句總結。caveman 格式：精簡、severity emoji、不廢話；
+            但遇到 CVE 級資安或架構問題，照 caveman 的 Auto-Clarity 切回詳細解釋。用繁體中文（台灣用語）。
+          claude_args: '--allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob"'

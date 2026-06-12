@@ -1,0 +1,47 @@
+# 第二道 review：leader / architect 定期深審（記憶感知）。
+# 跟第一道（caveman per-PR）刻意不同：排程觸發、跨所有 open PR、用官方 /code-review 當底座，
+# 並額外載入平台投影出來的「組織記憶」memory/review-rules.md——查「過去被糾正過的問題有沒有重蹈覆轍」。
+# 這是任何現成 review skill 都沒有的差異化：reviewer 越用越像看過這個 repo 很久的資深 leader。
+#
+# 認證走訂閱 OAuth（同第一道）。底座 plugin = Anthropic 官方 code-review（5-agent + 信心分數）。
+name: Leader Review（排程深審）
+on:
+  schedule:
+    - cron: "0 1 * * 1-5"   # 平日 09:00 台北（UTC+8 → UTC 01:00）
+  workflow_dispatch:         # 也可手動觸發測試，不用等排程
+
+jobs:
+  leader-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 官方 code-review plugin 當深審底座（5 個並行 agent + 0–100 信心分數過濾）
+          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+          plugins: "code-review@claude-code-plugins"
+          prompt: |
+            你是這個 repo 的 leader / architect reviewer，做定期深審（不是逐行守門，那是第一道 caveman 的事）。
+            REPO: ${{ github.repository }}
+
+            步驟：
+            1. 先讀 `memory/review-rules.md`——這是平台從組織記憶投影出來的累積規矩
+               （人在過去的 PR 上糾正過、已蒸餾成有出處的慣例）。把它當成資深 leader 的記性。
+            2. `gh pr list --state open` 抓所有開著的 PR。
+            3. 對每個 open PR：用 `/code-review:code-review ${{ github.repository }}/pull/<N>` 做深審，
+               並**額外**對照 `memory/review-rules.md`，特別查兩件第一道查不到的事：
+               (a) 過去被糾正過的問題有沒有重蹈覆轍（引用對應規矩的出處）；
+               (b) 跨 PR 的系統性 / 架構問題（模組邊界、技術債累積、跨檔一致性）。
+            4. 每個 PR 留一則總結評論（`gh pr comment`），開頭標「🧠 Leader Review（記憶感知）」，
+               有踩到 memory/review-rules.md 的就點名是哪一條。
+            用繁體中文（台灣用語）。
+          claude_args: '--allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob"'

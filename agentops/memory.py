@@ -132,6 +132,49 @@ def compose_injection(db: sqlite3.Connection, agent_id: str, query: str,
     return Injection(text="\n".join(lines), fact_ids=[f["id"] for f in facts])
 
 
+def export_review_rules(db: sqlite3.Connection, path: str, scope_repo: str | None = None) -> int:
+    """把組織記憶投影成 review skill 可讀的 markdown，給 CI 第二道 leader review 載入。
+
+    這就是記憶飛輪接到 CI 的那條線：人在 PR 上教平台的規矩 → 蒸餾成 memory_facts →
+    投影成這個檔 → leader review 拿來查「過去被糾正過的問題有沒有重蹈覆轍」。
+    """
+    import os
+
+    rows = db.execute(
+        """SELECT * FROM memory_facts
+           WHERE superseded_by IS NULL AND (? IS NULL OR scope_repo IS NULL OR scope_repo = ?)
+           ORDER BY importance DESC, id""",
+        (scope_repo, scope_repo),
+    ).fetchall()
+
+    lines = [
+        "# 組織記憶 → review 規矩",
+        "",
+        "> 自動投影，**不要手改**。由 `agentops export-review-rules` 從平台 `memory_facts` 產生，",
+        "> 隨記憶飛輪更新。第二道 leader review（`.github/workflows/leader-review.yml`）載入它，",
+        "> 查 PR 有沒有重蹈過去被糾正過的問題。每條附出處（source_quote）。",
+        "",
+    ]
+    if not rows:
+        lines.append("（還沒有累積的規矩——有人在 PR 上糾正、平台蒸餾後這裡會長出來。）")
+    else:
+        by_cat: dict[str, list] = {}
+        for r in rows:
+            by_cat.setdefault(r["category"] or "其他", []).append(r)
+        for cat, items in by_cat.items():
+            lines.append(f"## {cat}")
+            for r in items:
+                scope = f" `[{r['scope_agent']}]`" if r["scope_agent"] else ""
+                src = f"　_出處：「{r['source_quote']}」_" if r["source_quote"] else ""
+                lines.append(f"- **#{r['id']}**{scope} {r['fact']}{src}")
+            lines.append("")
+
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    return len(rows)
+
+
 def _hash(text: str) -> str:
     return hashlib.sha256(_normalize(text).encode()).hexdigest()[:16]
 

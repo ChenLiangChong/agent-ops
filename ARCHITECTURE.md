@@ -43,6 +43,28 @@ intake(verified actor) → tasks(queued) → claim(租約 CAS+TTL) → 逐階段
 | 通知硬接線 | enqueue 與業務寫入同 transaction；收件人 enqueue 時定死；投遞租約 CAS 10min 防重送；實際送出文字進稽核 |
 | 反捏造 | `CHECK (source_type != 'explicit' OR source_quote IS NOT NULL)` 在 DB 層 |
 
+## 兩道 review 與記憶接線
+
+PR 是唯一交付通道，後面接兩道**刻意不同**的 AI review（都走訂閱 OAuth）：
+
+```
+第一道  caveman-review.yml   on: pull_request      單一 PR diff，冷血一行式
+        （vendored caveman skill ＋ append repo 鐵律）→ 行內留言 + 一句總結
+第二道  leader-review.yml    on: schedule (cron)   跨所有 open PR，官方 /code-review 底座
+        ＋ 讀 memory/review-rules.md → 查「重蹈覆轍」＋ 跨 PR 架構問題
+```
+
+**記憶接線**（飛輪 → CI 的那條）：
+```
+人在 PR 糾正  →  feedback_events  →  distill（mem0 兩段式）  →  memory_facts（附 source_quote）
+                                                                      │ agentops export-review-rules
+                                                                      ▼
+                                          memory/review-rules.md  ──讀──►  第二道 leader review
+```
+`export_review_rules()`（memory.py）撈未被取代的 facts、按 category 分組、保留出處，
+寫成 git-able 的 markdown。CI checkout 後第二道就讀得到——平台學到的規矩自動變成 review 檢查項。
+這是平台獨有、現成 review skill 沒有的差異化。
+
 ## mock 與真實的邊界
 
 mock 的只有 I/O 兩端，資料形狀照官方：USD Search 回應欄位（url/score/bbox_dimension）、
