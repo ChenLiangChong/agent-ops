@@ -1,0 +1,13 @@
+{
+  "kind": "dataset",
+  "allowed_formats": [
+    "KITTI",
+    "COCO"
+  ],
+  "min_frames": 1000,
+  "required_annotators": [
+    "rgb",
+    "bounding_box_2d_tight",
+    "semantic_segmentation"
+  ]
+}

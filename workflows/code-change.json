@@ -1,0 +1,32 @@
+{
+  "id": "code-change",
+  "title": "工程變更：triage → 實作 → review → merge",
+  "stages": [
+    {
+      "id": "triage",
+      "role": "engineer",
+      "action": "triage"
+    },
+    {
+      "id": "implement",
+      "role": "engineer",
+      "action": "implement",
+      "artifact_type": "patch"
+    },
+    {
+      "id": "review",
+      "role": "reviewer",
+      "action": "code_review",
+      "spec": "code-review.spec.json",
+      "artifact_type": "review_report",
+      "max_revise": 0
+    },
+    {
+      "id": "merge",
+      "role": "gateway",
+      "action": "merge_pr",
+      "approval": "merge_pr",
+      "artifact_type": "release"
+    }
+  ]
+}

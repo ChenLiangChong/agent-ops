@@ -1,0 +1,45 @@
+{
+  "id": "simready-l1",
+  "title": "倉庫數位分身：CAD＋WMS → SimReady twin → 合成資料",
+  "stages": [
+    {
+      "id": "etl",
+      "role": "etl",
+      "action": "etl_normalize",
+      "artifact_type": "ir"
+    },
+    {
+      "id": "match",
+      "role": "asset-match",
+      "action": "asset_match",
+      "artifact_type": "match_table"
+    },
+    {
+      "id": "validate",
+      "role": "simready",
+      "action": "simready_validate",
+      "spec": "simready-warehouse.spec.json",
+      "artifact_type": "validation_report"
+    },
+    {
+      "id": "assemble",
+      "role": "simready",
+      "action": "scene_assemble",
+      "artifact_type": "scene"
+    },
+    {
+      "id": "synthdata",
+      "role": "synthdata",
+      "action": "synthdata_config",
+      "spec": "dataset.spec.json",
+      "artifact_type": "dataset_manifest"
+    },
+    {
+      "id": "publish",
+      "role": "qa",
+      "action": "publish_twin",
+      "approval": "publish_twin",
+      "artifact_type": "release"
+    }
+  ]
+}

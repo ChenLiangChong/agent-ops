@@ -1,0 +1,19 @@
+[project]
+name = "agent-ops"
+version = "0.1.0"
+description = "公司代理人平台：一個閘道身分、一隊角色 agent、公司流程皆是資料、回饋蒸餾成組織記憶。"
+requires-python = ">=3.10"
+dependencies = []                      # 核心＋demo＋tests 全 stdlib
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["agentops"]
+
+[tool.setuptools.package-data]
+agentops = ["migrations/*.sql"]

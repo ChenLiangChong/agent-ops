@@ -1,0 +1,5 @@
+{
+  "kind": "code-review",
+  "require_tests": true,
+  "max_diff_lines": 400
+}

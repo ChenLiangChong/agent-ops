@@ -1,0 +1,17 @@
+{
+  "id": "weekly-report",
+  "title": "週報：彙整遙測 → 草稿（人改 diff 進記憶）",
+  "stages": [
+    {
+      "id": "collect",
+      "role": "scribe",
+      "action": "collect_metrics"
+    },
+    {
+      "id": "draft",
+      "role": "scribe",
+      "action": "draft_report",
+      "artifact_type": "report"
+    }
+  ]
+}

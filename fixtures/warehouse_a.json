@@ -1,0 +1,116 @@
+{
+  "site": "warehouse-A",
+  "layout_version": "v3",
+  "repo": "twin-warehouse-a",
+  "bindings": {
+    "wms": "wms://kenmec-demo",
+    "plc": "opcua://plc-line-1"
+  },
+  "num_frames": 5000,
+  "seed": 42,
+  "cad_blocks": [
+    {
+      "block_name": "FORKLIFT",
+      "vendor_model": "Toyota 8FBE20",
+      "x": 3.0,
+      "y": 4.0,
+      "theta": 90,
+      "w": 1.2,
+      "d": 2.4,
+      "height": 2.1
+    },
+    {
+      "block_name": "FORKLIFT",
+      "vendor_model": "Toyota 8FBE20",
+      "x": 18.5,
+      "y": 6.0,
+      "theta": 0,
+      "w": 1.2,
+      "d": 2.4,
+      "height": 2.1
+    },
+    {
+      "block_name": "RACK",
+      "vendor_model": "Kenmec R4T",
+      "x": 6.0,
+      "y": 10.0,
+      "theta": 0,
+      "w": 2.7,
+      "d": 1.1
+    },
+    {
+      "block_name": "RACK",
+      "vendor_model": "Kenmec R4T",
+      "x": 9.0,
+      "y": 10.0,
+      "theta": 0,
+      "w": 2.7,
+      "d": 1.1
+    },
+    {
+      "block_name": "RACK",
+      "vendor_model": "Kenmec R4T",
+      "x": 12.0,
+      "y": 10.0,
+      "theta": 0,
+      "w": 2.7,
+      "d": 1.1
+    },
+    {
+      "block_name": "CONVEYOR",
+      "vendor_model": "Belt-M",
+      "x": 15.0,
+      "y": 2.0,
+      "theta": 0,
+      "w": 6.0,
+      "d": 0.8,
+      "height": 1.2
+    },
+    {
+      "block_name": "PALLET",
+      "x": 5.0,
+      "y": 2.5,
+      "w": 1.2,
+      "d": 0.8,
+      "height": 0.15
+    },
+    {
+      "block_name": "PALLET",
+      "x": 6.5,
+      "y": 2.5,
+      "w": 1.2,
+      "d": 0.8,
+      "height": 0.15
+    },
+    {
+      "block_name": "AGV",
+      "vendor_model": "MiR 250",
+      "x": 10.0,
+      "y": 5.0,
+      "theta": 45,
+      "w": 0.8,
+      "d": 0.9,
+      "height": 0.3
+    }
+  ],
+  "wms_rows": [
+    {
+      "location": "A-01-01",
+      "sku": "SKU-1001",
+      "qty": 240,
+      "rack_height": 7.2
+    },
+    {
+      "location": "A-01-02",
+      "sku": "SKU-1002",
+      "qty": 180,
+      "rack_height": 7.2
+    },
+    {
+      "location": "A-02-01",
+      "sku": "SKU-2001",
+      "qty": 96,
+      "rack_height": 7.2
+    }
+  ]
+}

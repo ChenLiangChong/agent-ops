@@ -1,0 +1,9 @@
+{
+  "kind": "simready",
+  "required_rules": [
+    "PHYS-COLLIDER",
+    "PHYS-MASS",
+    "PHYS-MATERIAL",
+    "SEM-LABEL"
+  ]
+}
