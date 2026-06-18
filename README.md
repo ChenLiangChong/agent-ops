@@ -43,7 +43,7 @@ PR 交付後有兩道獨立的 AI review，刻意用**不同方式**，不是重
 
 | | 第一道 `caveman-review.yml` | 第二道 `leader-review.yml` |
 |---|---|---|
-| 觸發 | 每個 PR push | 平日排程 cron ＋可手動 |
+| 觸發 | 每個 PR push | 平日每小時**掃描**，只審有新 commit 的 PR（沒有就不啟動 Claude）＋可手動 |
 | 範圍 | 單一 PR 的 diff | 跨所有 open PR ＋系統性／架構問題 |
 | skill | **caveman**（vendored，MIT，71.8k★）冷血一行式 | 官方 **/code-review**（5-agent＋信心分數）當底座 |
 | 獨有 | repo 專屬鐵律（審批繞過、SQL 拼接、verified-actor 偽造） | **載入 `memory/review-rules.md`** |

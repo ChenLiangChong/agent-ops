@@ -50,8 +50,9 @@ PR 是唯一交付通道，後面接兩道**刻意不同**的 AI review（都走
 ```
 第一道  caveman-review.yml   on: pull_request      單一 PR diff，冷血一行式
         （vendored caveman skill ＋ append repo 鐵律）→ 行內留言 + 一句總結
-第二道  leader-review.yml    on: schedule (cron)   跨所有 open PR，官方 /code-review 底座
-        ＋ 讀 memory/review-rules.md → 查「重蹈覆轍」＋ 跨 PR 架構問題
+第二道  leader-review.yml    on: schedule (每小時掃)  確定性 gate 先挑「有新 commit、當前 HEAD 未審過」的
+        open PR；沒有就不叫醒 Claude。有目標才用官方 /code-review 底座 ＋ 讀 memory/review-rules.md
+        → 查「重蹈覆轍」＋ 跨 PR 架構；審完留 <!-- leader-review-sha --> 標記避免重審
 ```
 
 **記憶接線**（飛輪 → CI 的那條）：
