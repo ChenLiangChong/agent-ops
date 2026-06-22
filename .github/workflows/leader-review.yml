@@ -2,6 +2,7 @@
 # 跟第一道（caveman per-PR 即時）刻意不同：**定期掃描**，但只審「有新 commit、當前 HEAD 還沒被 leader 審過」的 open PR。
 # 確定性 shell gate 先算出該審哪些——沒有就根本不叫醒 Claude（省訂閱額度、不在舊 PR 上洗版）。
 # 這正是平台哲學：確定性邏輯把關、LLM 只做需要智能的部分。
+# 「已審過」標記也由 shell 在 Claude 審成功後確定性蓋上——標記是控制狀態，不賭 LLM 記得貼。
 # 認證走訂閱 OAuth。底座 plugin = Anthropic 官方 code-review。
 name: Leader Review（排程深審）
 on:
@@ -71,8 +72,23 @@ jobs:
                (a) 過去被糾正過的問題有沒有重蹈覆轍（引用對應規矩的出處）；
                (b) 跨 PR 的系統性 / 架構問題（模組邊界、技術債、跨檔一致性）。
             3. 留一則總結評論（`gh pr comment`），開頭標「🧠 Leader Review（記憶感知）」，
-               **結尾原樣貼上這一行標記**（用上面給你的對應 head_sha，不要自己改、不要重算）：
-               `<!-- leader-review-sha: <該PR的head_sha> -->`
-               這個標記讓下次排程知道這個 commit 已審過、不重複審。
+               有踩到 memory/review-rules.md 的就點名是哪一條。
+               （「已審過」標記由 workflow 後續 step 確定性蓋上，你不用管、也不用自己貼。）
             用繁體中文（台灣用語）。
           claude_args: '--allowed-tools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Grep,Glob"'
+
+      - name: 蓋上「已審」標記（確定性 shell 寫；只在 Claude 審成功後）
+        if: ${{ steps.scan.outputs.has_targets == 'true' && success() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGETS: ${{ steps.scan.outputs.targets }}
+        run: |
+          # dedup 標記是「控制狀態」，不靠 LLM 記得貼——shell 確定性補上。
+          # 萬一 Claude step 失敗，success() 為 false → 不蓋標記 → 下次排程會重審（正確）。
+          for t in $TARGETS; do
+            pr="${t%%:*}"
+            sha="${t##*:}"
+            body=$(printf '🧠 Leader Review 已完成 @ %s\n<!-- leader-review-sha: %s -->' "${sha:0:7}" "$sha")
+            gh pr comment "$pr" --body "$body"
+            echo "已蓋標記：PR #$pr @ ${sha:0:7}"
+          done
