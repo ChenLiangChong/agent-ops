@@ -102,3 +102,11 @@ def summary(db: sqlite3.Connection) -> dict:
         "runs": r["runs"], "input_tokens": r["tin"], "output_tokens": r["tout"],
         "cost_usd": round(r["cost"], 4), "subscription_runs": r["sub_runs"] or 0,
     }
+
+
+def recent_runs(db: sqlite3.Connection, limit: int = 10) -> list:
+    """最近 N 次執行（dashboard 用）。"""
+    return db.execute(
+        "SELECT id, agent_id, stage, status, outcome, duration_ms, cost_usd "
+        "FROM runs ORDER BY id DESC LIMIT " + str(limit)
+    ).fetchall()
